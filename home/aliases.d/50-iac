@@ -1,0 +1,32 @@
+# Terraform, OpenTofu and Helm
+#
+# Turn this group off with:  aliasgroup off iac
+
+# ── Terraform / OpenTofu ──────────────────────────────────────────────────────
+if command -v terraform &>/dev/null; then
+  alias tf='terraform'
+  alias tfi='terraform init'
+  alias tfp='terraform plan'
+  alias tfa='terraform apply'
+  alias tfaa='terraform apply -auto-approve'
+  alias tfd='terraform destroy'
+  alias tfo='terraform output'
+  alias tfs='terraform state'
+  alias tff='terraform fmt -recursive'
+  alias tfv='terraform validate'
+  alias tfw='terraform workspace'
+fi
+command -v tofu &>/dev/null && alias to='tofu'
+
+# ── Helm ──────────────────────────────────────────────────────────────────────
+# `h` is Omarchy's alias for herdr, so helm gets `hlm` here (it is `h` in zsh).
+if command -v helm &>/dev/null; then
+  alias hlm='helm'
+  alias hls='helm list'
+  alias hla='helm list --all-namespaces'
+  alias hi='helm install'
+  alias hu='helm uninstall'
+  alias hup='helm upgrade --install'
+  alias hr='helm repo'
+  alias ht='helm template'
+fi

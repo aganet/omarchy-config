@@ -1,0 +1,101 @@
+# Secret, dependency, container and IaC scanners
+#
+# Turn this group off with:  aliasgroup off security
+
+# ── Security scanning ─────────────────────────────────────────────────────────
+# gitleaks on this repo.
+#   secscan-leaks            working tree only (fast)
+#   secscan-leaks --all      whole git history (slow)
+#   secscan-leaks --redact   hide the secret values
+#   secscan-leaks --json F   write findings to F
+secscan-leaks() {
+  command -v gitleaks &>/dev/null || {
+    echo "gitleaks not installed — sudo pacman -S gitleaks" >&2
+    return 127
+  }
+  local args=(detect --source . --verbose --no-banner)
+  local out_json=""
+  while (( $# )); do
+    case "$1" in
+      --all)    args+=(--log-opts="--all") ;;
+      --redact) args+=(--redact) ;;
+      --json)   out_json="$2"; args+=(--report-format=json --report-path="$2"); shift ;;
+      *)        args+=("$1") ;;
+    esac
+    shift
+  done
+  gitleaks "${args[@]}"
+  local rc=$?
+  if (( rc == 0 )); then
+    echo "✔ no secrets found"
+  else
+    echo "✘ findings detected (gitleaks exit=$rc)"
+    [[ -n "$out_json" ]] && echo "  full report: $out_json"
+  fi
+  return $rc
+}
+
+# Run every scanner that fits what is in this folder. Missing tools are skipped.
+secscan() {
+  local rc=0
+  _secscan_section() { echo; echo "━━ $1 ━━"; }
+
+  _secscan_section "Secrets"
+  command -v gitleaks   &>/dev/null && { gitleaks detect --source . --verbose --no-banner --redact || rc=1; }
+  command -v trufflehog &>/dev/null && { trufflehog filesystem . --no-update --only-verified 2>/dev/null || rc=1; }
+
+  _secscan_section "SAST (code patterns)"
+  command -v semgrep &>/dev/null && { semgrep --config=auto --quiet --error . || rc=1; }
+
+  _secscan_section "Dependencies"
+  command -v osv-scanner &>/dev/null && { osv-scanner -r . 2>/dev/null || rc=1; }
+  [[ -f package.json ]] && command -v npm   &>/dev/null && { npm audit --omit=dev 2>/dev/null || rc=1; }
+  [[ -f Cargo.toml   ]] && command -v cargo &>/dev/null && { cargo audit 2>/dev/null || rc=1; }
+  [[ -f go.mod       ]] && command -v govulncheck &>/dev/null && { govulncheck ./... || rc=1; }
+
+  if ls ./*.tf &>/dev/null; then
+    _secscan_section "IaC (Terraform)"
+    command -v tflint  &>/dev/null && { tflint || rc=1; }
+    command -v checkov &>/dev/null && { checkov -d . --quiet --compact || rc=1; }
+  fi
+
+  if [[ -f Dockerfile ]] || ls ./*.dockerfile &>/dev/null; then
+    _secscan_section "Container (Dockerfile)"
+    command -v trivy    &>/dev/null && { trivy config . --quiet || rc=1; }
+    command -v hadolint &>/dev/null && { find . -name "Dockerfile*" -exec hadolint {} + || rc=1; }
+  fi
+
+  if find . -type f \( -name "*.yaml" -o -name "*.yml" \) -exec grep -l "^kind: " {} + 2>/dev/null | head -1 >/dev/null; then
+    _secscan_section "Kubernetes manifests"
+    command -v kube-score &>/dev/null && { find . -type f \( -name "*.yaml" -o -name "*.yml" \) -exec kube-score score {} + 2>/dev/null || rc=1; }
+    command -v kubescape  &>/dev/null && { kubescape scan . --format pretty-printer 2>/dev/null || rc=1; }
+  fi
+
+  echo
+  (( rc == 0 )) && echo "✔ all scanners passed" || echo "✘ findings above (rc=$rc)"
+  return $rc
+}
+
+alias glscan='secscan-leaks'
+command -v trufflehog  &>/dev/null && alias th='trufflehog filesystem'
+command -v semgrep     &>/dev/null && alias smg='semgrep --config=auto'  # not `sg`: that is switch-group
+command -v osv-scanner &>/dev/null && alias osv='osv-scanner -r'
+
+command -v tflint   &>/dev/null && alias tfl='tflint'
+command -v checkov  &>/dev/null && alias ck='checkov -d .'
+command -v conftest &>/dev/null && alias cft='conftest test'
+
+command -v trivy  &>/dev/null && { alias tvy='trivy'; alias tvyi='trivy image'; alias tvyc='trivy config .'; }
+command -v grype  &>/dev/null && alias gry='grype'
+command -v syft   &>/dev/null && alias sbom='syft -o spdx-json'
+command -v cosign &>/dev/null && { alias cosv='cosign verify'; alias coss='cosign sign'; }
+command -v crane  &>/dev/null && alias crn='crane'
+command -v dive   &>/dev/null && alias dv='dive'
+
+command -v kube-score &>/dev/null && alias kscore='kube-score score'
+command -v kubescape  &>/dev/null && alias kscape='kubescape scan'
+command -v kube-bench &>/dev/null && alias kbench='kube-bench'
+command -v popeye     &>/dev/null && alias pop='popeye'
+
+command -v sops &>/dev/null && { alias sope='sops -e -i'; alias sopd='sops -d -i'; }
+command -v age  &>/dev/null && alias agee='age -e'

@@ -1,0 +1,40 @@
+# git and the GitHub CLI
+#
+# Turn this group off with:  aliasgroup off git
+
+# ── Git extras ────────────────────────────────────────────────────────────────
+alias gpr='git pull --rebase'
+
+# Delete local branches whose remote branch is gone.
+gprune() {
+  git fetch --prune || return
+  local stale
+  stale=$(git branch -vv | awk '/: gone]/ {print $1}')
+  if [[ -z "$stale" ]]; then
+    echo "gprune: no stale branches"
+    return 0
+  fi
+  echo "$stale" | xargs git branch -D
+}
+
+# ── GitHub CLI ────────────────────────────────────────────────────────────────
+if command -v gh &>/dev/null; then
+  alias ghv='gh repo view --web'
+  alias ghc='gh repo clone'
+  alias ghf='gh repo fork --clone'
+
+  alias ghpr='gh pr create --web'
+  alias ghprl='gh pr list'
+  alias ghprv='gh pr view --web'
+  alias ghprco='gh pr checkout'
+  alias ghprm='gh pr merge --squash --delete-branch'
+  alias ghprs='gh pr status'
+
+  alias ghi='gh issue create --web'
+  alias ghil='gh issue list'
+  alias ghiv='gh issue view --web'
+
+  alias ghrun='gh run list'
+  alias ghwatch='gh run watch'
+  alias gha='gh auth status'
+fi

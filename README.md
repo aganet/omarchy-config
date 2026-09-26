@@ -36,8 +36,8 @@ suggestions, colours and a prompt that actually tells me something.
 
 **Commands**
 
-About 90 aliases and a few functions, ported from my zsh config. Type
-`myalias` to list them, or `myalias docker` to filter.
+About 90 aliases and a few functions, in nine groups you can switch on and
+off with `aliasgroup`. Type `myalias` to list what is active.
 
 - kubernetes: `k`, `kpf`, `kev`, `klogs`, `events`, `kdebug`, `k9`
 - docker: `dps`, `dex`, `dlog`, `dc`, `dcu`, `dcl`, `dprune`
@@ -75,6 +75,41 @@ Open a new terminal. Done.
 
 `install.sh` links the files from this repo into place. Anything already
 there is backed up first, with the date in the name.
+
+### The aliases come in groups
+
+My aliases are mine. You probably do not want my kubernetes ones. So they
+are split into nine groups, and you switch them on and off by name:
+
+```bash
+$ aliasgroup
+  on   core         Everyday shortcuts and the group switch
+  on   system       System update, network and process helpers
+  on   git          git and the GitHub CLI
+  on   docker       Docker and compose
+  on   kubernetes   kubectl, kubectx, stern, k9s, kind
+  on   iac          Terraform, OpenTofu and Helm
+  on   cloud        AWS and Azure
+  on   python       uv
+  on   security     Secret, dependency, container and IaC scanners
+
+$ aliasgroup off kubernetes
+kubernetes off. Open a new terminal.
+```
+
+Turning one off writes its name to `~/.config/bash/aliases.disabled`. The
+repo files are never touched, so `git pull` keeps working and `git status`
+stays clean. `aliasgroup on kubernetes` brings it back.
+
+Do not want any of them? `./install.sh --no-aliases` and you still get the
+prompt and the typing setup.
+
+Want your own instead? Drop a file in `~/.bash_aliases.d/`. Anything in
+there is loaded, and `90-mine` sorts after my groups so it wins.
+
+Run `myalias` to see what is actually defined, or `myalias docker` to
+filter. Every alias is wrapped in `command -v` anyway, so one for a tool
+you have not installed does not exist in the first place.
 
 ### My tools (optional)
 
@@ -122,7 +157,7 @@ anything.
 | --- | --- |
 | `home/bashrc` | `~/.bashrc` |
 | `home/blerc` | `~/.blerc` |
-| `home/aliases` | `~/.bash_aliases` |
+| `home/aliases.d/` | `~/.bash_aliases.d/` |
 | `home/bashrc.local.example` | `~/.bashrc.local`, by hand |
 | `config/starship.toml` | `~/.config/starship.toml` |
 | `config/ghostty/config` | `~/.config/ghostty/config` |

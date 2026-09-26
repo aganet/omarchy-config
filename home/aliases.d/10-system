@@ -1,0 +1,46 @@
+# System update, network and process helpers
+#
+# Turn this group off with:  aliasgroup off system
+
+# ── update: upgrade the whole system ──────────────────────────────────────────
+update() {
+  echo "==> System packages"
+  sudo pacman -Sy --needed archlinux-keyring || return
+  if   command -v yay  &>/dev/null; then yay  -Syu --noconfirm
+  elif command -v paru &>/dev/null; then paru -Syu --noconfirm
+  else sudo pacman -Syu --noconfirm
+  fi
+
+  if command -v flatpak &>/dev/null; then
+    echo "==> Flatpak"
+    flatpak update --user -y
+    sudo flatpak update --system -y
+  fi
+
+  if command -v mise &>/dev/null; then
+    echo "==> mise runtimes"
+    mise self-update --no-plugins 2>/dev/null || true
+    mise upgrade
+  fi
+
+  if command -v tldr &>/dev/null; then
+    echo "==> tldr cache"
+    tldr --update &>/dev/null && echo "   refreshed."
+  fi
+
+  echo "==> Done."
+}
+
+# ── Network and system ────────────────────────────────────────────────────────
+alias myip='curl -s https://api.ipify.org && echo'
+localip() {
+  ip -4 addr show 2>/dev/null | awk '/inet / && $2 !~ /^127/ {print $2}' | cut -d/ -f1
+}
+alias ports='ss -tulpn 2>/dev/null || netstat -tulpn'
+alias listening='ss -tlpn 2>/dev/null || netstat -tlpn'
+alias weather='curl -s "https://wttr.in/?format=3"'
+
+# ── Processes ─────────────────────────────────────────────────────────────────
+alias psg='ps aux | grep -v grep | grep -i'
+alias mem='ps aux --sort=-%mem | head -n 11'
+alias cpu='ps aux --sort=-%cpu | head -n 11'

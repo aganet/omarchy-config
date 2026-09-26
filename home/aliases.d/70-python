@@ -1,0 +1,14 @@
+# uv
+#
+# Turn this group off with:  aliasgroup off python
+
+# ── Python (uv) ───────────────────────────────────────────────────────────────
+if command -v uv &>/dev/null; then
+  alias uvi='uv pip install'
+  alias uvr='uv run'
+  alias uvs='uv sync'
+  alias uva='uv add'
+  alias uvrm='uv remove'
+  alias uvenv='uv venv'
+  alias uvpy='uv python install'
+fi

@@ -1,0 +1,66 @@
+# kubectl, kubectx, stern, k9s, kind
+#
+# Turn this group off with:  aliasgroup off kubernetes
+
+# ── Kubernetes ────────────────────────────────────────────────────────────────
+if command -v kubectl &>/dev/null; then
+  alias k='kubectl'
+  complete -o default -F __start_kubectl k 2>/dev/null
+
+  alias kpf='kubectl port-forward'
+  alias kev='kubectl get events --sort-by=.lastTimestamp'
+  alias kaa='kubectl get all --all-namespaces'
+  alias ktop='kubectl top'
+  alias kapi='kubectl api-resources'
+
+  # Tail a pod's logs without knowing its namespace.
+  # Usage: klogs <pod> [kubectl logs flags...]
+  klogs() {
+    if [[ -z "$1" ]]; then
+      echo "usage: klogs <pod-name> [kubectl logs flags...]" >&2
+      return 2
+    fi
+    local pod="$1"; shift
+    local ns
+    ns=$(kubectl get pod -A --field-selector=metadata.name="$pod" \
+          -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null)
+    if [[ -z "$ns" ]]; then
+      echo "klogs: pod '$pod' not found in any namespace" >&2
+      return 1
+    fi
+    kubectl logs -n "$ns" "$pod" "$@"
+  }
+
+  # Chronological events, all namespaces unless you pass -n or -A.
+  # Flags pass through: events -n foo, events -w, events --field-selector type=Warning
+  events() {
+    local args=("$@")
+    if ! [[ " ${args[*]} " =~ " -n " || " ${args[*]} " =~ " --namespace " \
+         || " ${args[*]} " =~ " -A " || " ${args[*]} " =~ " --all-namespaces " ]]; then
+      args=(--all-namespaces "${args[@]}")
+    fi
+    kubectl get events \
+      --sort-by=.lastTimestamp \
+      -o custom-columns=NAMESPACE:.metadata.namespace,LASTSEEN:.lastTimestamp,FIRSTSEEN:.firstTimestamp,COUNT:.count,TYPE:.type,REASON:.reason,OBJECT:.involvedObject.name,MESSAGE:.message \
+      "${args[@]}"
+  }
+
+  # Throwaway netshoot pod for in-cluster network debugging.
+  kdebug() {
+    kubectl run "debug-${RANDOM}" --rm -it \
+      --image=nicolaka/netshoot --restart=Never -- "${@:-sh}"
+  }
+fi
+
+command -v kubectx &>/dev/null && alias kctx='kubectx'
+command -v kubens  &>/dev/null && alias kns='kubens'
+command -v stern   &>/dev/null && alias ks='stern'
+command -v k9s     &>/dev/null && alias k9='k9s'
+command -v switcher &>/dev/null && alias s='switcher'
+
+if command -v kind &>/dev/null; then
+  alias kindc='kind create cluster'
+  alias kindd='kind delete cluster'
+  alias kindg='kind get clusters'
+  alias kindl='kind load docker-image'
+fi

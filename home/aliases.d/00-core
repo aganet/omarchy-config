@@ -1,0 +1,113 @@
+# Everyday shortcuts and the group switch
+#
+# Turn this group off with:  aliasgroup off core
+
+# ── General ───────────────────────────────────────────────────────────────────
+alias -- -='cd -'                     # jump to the previous directory
+alias df='df -h'
+alias free='free -m'
+alias path='echo -e ${PATH//:/\\n}'
+alias reload='exec bash'
+
+# ── Editor ────────────────────────────────────────────────────────────────────
+if command -v nvim &>/dev/null; then
+  alias vim='nvim'
+  alias vi='nvim'
+fi
+
+# ── Modern replacements ───────────────────────────────────────────────────────
+# Omarchy already aliases ls/lsa/lt/lta to eza. These add the variants I use.
+if command -v eza &>/dev/null; then
+  alias ll='eza -lh --icons --git --group-directories-first'
+  alias la='eza -lah --icons --git --group-directories-first'
+  alias llal='eza -lah --icons --git --group-directories-first'
+  alias llt='eza -lh --icons --git --group-directories-first --sort=newest --reverse'
+  alias llta='eza -lah --icons --git --group-directories-first --sort=newest --reverse'
+  alias tree='eza --tree --icons'
+fi
+# Not aliased on purpose: `cat` and `grep`. Pointing them at bat and rg breaks
+# scripts, and anything else that expects the real tool's flags. Use `bat` and
+# `rg` by name instead.
+
+# ── Group switch ────────────────────────────────────────────────────────────
+# Alias groups live in ~/.bash_aliases.d/. Turning one off writes its name to
+# ~/.config/bash/aliases.disabled, so the repo files are never edited and
+# `git status` stays clean.
+#
+#   aliasgroup              list the groups and whether they are on
+#   aliasgroup off docker   turn one off
+#   aliasgroup on docker    turn it back on
+#
+# Takes effect in the next terminal.
+
+_aliasgroup_file="$HOME/.config/bash/aliases.disabled"
+
+aliasgroup() {
+  local dir="$HOME/.bash_aliases.d" action="${1-list}" name="${2-}"
+  local f base
+
+  case "$action" in
+    list|"")
+      [[ -d $dir ]] || { echo "no $dir"; return 1; }
+      for f in "$dir"/*; do
+        [[ -f $f ]] || continue
+        base=${f##*/}; base=${base#*-}
+        if command grep -qxF "$base" "$_aliasgroup_file" 2>/dev/null; then
+          printf '  off  %-12s %s\n' "$base" "$(command sed -n '1s/^# //p' "$f")"
+        else
+          printf '  on   %-12s %s\n' "$base" "$(command sed -n '1s/^# //p' "$f")"
+        fi
+      done
+      ;;
+    off)
+      [[ -n $name ]] || { echo "usage: aliasgroup off <group>" >&2; return 2; }
+      mkdir -p "$(dirname "$_aliasgroup_file")"
+      command grep -qxF "$name" "$_aliasgroup_file" 2>/dev/null ||
+        echo "$name" >> "$_aliasgroup_file"
+      echo "$name off. Open a new terminal."
+      ;;
+    on)
+      [[ -n $name ]] || { echo "usage: aliasgroup on <group>" >&2; return 2; }
+      [[ -f $_aliasgroup_file ]] &&
+        command sed -i "/^$name\$/d" "$_aliasgroup_file"
+      echo "$name on. Open a new terminal."
+      ;;
+    *)
+      echo "usage: aliasgroup [list | on <group> | off <group>]" >&2
+      return 2
+      ;;
+  esac
+}
+
+# ── List my own aliases ────────────────────────────────────────────────────
+# myalias           everything defined in ~/.bash_aliases.d and ~/.bashrc.local
+# myalias kube      only those matching "kube"
+# myalias --files   show which file each came from
+myalias() {
+  local pattern="" show_files=0
+  while (( $# )); do
+    case "$1" in
+      --files) show_files=1 ;;
+      *)       pattern="$1" ;;
+    esac
+    shift
+  done
+
+  local files=("$HOME"/.bash_aliases.d/* "$HOME/.bashrc.local")
+  local f
+  for f in "${files[@]}"; do
+    [[ -f "$f" ]] || continue
+    # `grep` may be aliased to rg, so call the real one.
+    command grep -nE "^[[:space:]]*alias[[:space:]]+[a-zA-Z_-]+=|&&[[:space:]]+alias[[:space:]]+[a-zA-Z_-]+=" "$f" |
+      command sed -E "s|^([0-9]+):.*alias |\1\t|" |
+      while IFS=$'\t' read -r lineno aliasdef; do
+        [[ $aliasdef == \#* ]] && continue
+        [[ -n $pattern && $aliasdef != *"$pattern"* ]] && continue
+        if (( show_files )); then
+          printf "%-20s %s:%s\n" "${aliasdef%%=*}" "$(basename "$f")" "$lineno"
+        else
+          echo "$aliasdef"
+        fi
+      done
+  done | sort -u
+}

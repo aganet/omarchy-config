@@ -37,8 +37,17 @@ PROMPT_COMMAND="history -a; ${PROMPT_COMMAND:-}"
 # atuin: searchable synced history on Ctrl-R (up arrow stays normal)
 eval "$(atuin init bash --disable-up-arrow)"
 
-# My aliases and functions, ported from my zsh config.
-[[ -r ~/.bash_aliases ]] && source ~/.bash_aliases
+# My aliases and functions, in groups. Turn one off with: aliasgroup off <name>
+# Disabled groups are listed in ~/.config/bash/aliases.disabled.
+if [[ -d ~/.bash_aliases.d ]]; then
+  for _f in ~/.bash_aliases.d/*; do
+    [[ -f $_f ]] || continue
+    _g=${_f##*/}; _g=${_g#*-}
+    grep -qxF "$_g" ~/.config/bash/aliases.disabled 2>/dev/null && continue
+    source "$_f"
+  done
+  unset _f _g
+fi
 
 # direnv: per-directory environment variables from a .envrc file
 command -v direnv &>/dev/null && eval "$(direnv hook bash)"

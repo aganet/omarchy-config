@@ -7,6 +7,11 @@ set -euo pipefail
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 stamp=$(date +%F)
 
+# --no-aliases skips my alias groups entirely. You can also keep them and
+# switch individual groups off later with: aliasgroup off <name>
+aliases=yes
+[[ ${1-} == --no-aliases ]] && aliases=no
+
 link() {
   local src="$repo/$1" dst="$2"
 
@@ -24,7 +29,11 @@ link() {
 
 link home/bashrc          "$HOME/.bashrc"
 link home/blerc           "$HOME/.blerc"
-link home/aliases         "$HOME/.bash_aliases"
+if [[ $aliases == yes ]]; then
+  link home/aliases.d     "$HOME/.bash_aliases.d"
+else
+  echo "skipped the alias groups (--no-aliases)"
+fi
 link config/starship.toml "$HOME/.config/starship.toml"
 link config/ghostty/config "$HOME/.config/ghostty/config"
 
@@ -36,4 +45,10 @@ else
   echo "  yay -S --needed blesh-git"
 fi
 echo
+if [[ $aliases == yes ]]; then
+  echo "Alias groups installed. See them with: aliasgroup"
+  echo "Turn one off with:                    aliasgroup off kubernetes"
+  echo
+fi
 echo "Open a new terminal to pick everything up."
+

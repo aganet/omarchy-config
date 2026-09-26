@@ -1,0 +1,21 @@
+# AWS and Azure
+#
+# Turn this group off with:  aliasgroup off cloud
+
+# ── AWS ───────────────────────────────────────────────────────────────────────
+if command -v aws &>/dev/null; then
+  alias awsw='aws sts get-caller-identity'
+  alias awsl='aws sso login'
+  alias awsr='aws configure list-profiles'
+fi
+
+# ── Azure ─────────────────────────────────────────────────────────────────────
+if command -v az &>/dev/null; then
+  alias azl='az login'
+  alias azlo='az logout'
+  alias azw='az account show'
+  alias azacc='az account list --output table'
+  alias azset='az account set --subscription'
+  alias azg='az group list --output table'
+  alias azaks='az aks get-credentials'
+fi

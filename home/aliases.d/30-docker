@@ -1,0 +1,31 @@
+# Docker and compose
+#
+# Turn this group off with:  aliasgroup off docker
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+if command -v docker &>/dev/null; then
+  alias dps='docker ps'
+  alias dpsa='docker ps -a'
+  alias di='docker images'
+  alias dex='docker exec -it'
+  alias dlog='docker logs -f'
+  alias drun='docker run --rm -it'
+  alias dstats='docker stats'
+  alias dprune='docker system prune -af --volumes'
+  alias dip="docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"
+fi
+
+# Compose v2. Check the plugin file rather than running `docker compose version`,
+# which would fork a process on every shell start.
+if command -v docker &>/dev/null && \
+   { [[ -e /usr/lib/docker/cli-plugins/docker-compose ]] || \
+     [[ -e /usr/libexec/docker/cli-plugins/docker-compose ]] || \
+     [[ -e "$HOME/.docker/cli-plugins/docker-compose" ]]; }; then
+  alias dc='docker compose'
+  alias dcu='docker compose up -d'
+  alias dcd='docker compose down'
+  alias dcl='docker compose logs -f'
+  alias dcps='docker compose ps'
+  alias dcb='docker compose build'
+  alias dcr='docker compose restart'
+fi
