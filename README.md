@@ -73,8 +73,35 @@ yay -S --needed blesh-git
 
 Open a new terminal. Done.
 
-`install.sh` links the files from this repo into place. Anything already
-there is backed up first, with the date in the name.
+### Pick what you want
+
+`install.sh` on its own shows a menu. Nothing is forced on you:
+
+```text
+Which parts do you want?
+> ✓ prompt    The starship prompt: folder, git state, versions, clock
+  ✓ typing    ble.sh: suggestions, syntax colours, Tab menu, Enter fix
+  ✓ aliases   ~90 aliases in groups you can switch on and off
+  ✓ terminal  Ghostty: font, padding, keys (opinionated)
+```
+
+`x` toggles a line, Enter confirms. Or name the parts directly:
+
+```bash
+./install.sh prompt typing   # just those two
+./install.sh --all           # everything, no questions
+./install.sh --list          # what the parts are, then stop
+```
+
+The bashrc is always installed, because it is the file that loads the
+others. Everything already in place is backed up first, with the date in
+the name, and running it again is safe.
+
+Want to see what it would do without touching your home?
+
+```bash
+t=$(mktemp -d); HOME="$t" ./install.sh --all; find "$t"; rm -rf "$t"
+```
 
 ### The aliases come in groups
 
