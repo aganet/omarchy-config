@@ -1,0 +1,32 @@
+# ble.sh settings. Loaded automatically by ble.sh.
+
+# Suggestions from history appear in grey as you type. Right arrow or End accepts.
+ble-face auto_complete=fg=245
+
+# Tab opens a menu with descriptions; Tab again moves through it.
+bleopt complete_menu_style=desc
+bleopt complete_menu_maxlines=12
+
+# Show the menu after a short pause, not on every keystroke.
+bleopt complete_auto_delay=150
+
+# Do not ring the bell.
+bleopt edit_abell=
+bleopt edit_vbell=
+
+# fzf: keep Ctrl-T (files) and Alt-C (directories) working under ble.sh.
+_ble_contrib_fzf_base=/usr/share/fzf
+ble-import -d integration/fzf-key-bindings
+ble-import -d integration/fzf-completion
+
+# Powerline / Nerd Font glyphs are 1 cell wide in ghostty. Count them that way,
+# otherwise ble.sh thinks the prompt wrapped and draws it twice.
+bleopt char_width_mode=west
+
+
+# Builtins (pwd, echo, cd) are red by default, which looks like an error. Use the
+# same colour as other valid commands.
+ble-face command_builtin=fg=green
+
+# The prompt already shows the exit code, so ble.sh does not need to print it.
+bleopt exec_errexit_mark=

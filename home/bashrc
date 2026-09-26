@@ -1,0 +1,41 @@
+# Omarchy environment (OMARCHY_PATH + PATH), needed even for non-interactive shells
+[[ -r /usr/share/omarchy/default/bash/env-bootstrap ]] && source /usr/share/omarchy/default/bash/env-bootstrap
+
+# If not running interactively, don't do anything else (leave this above the rc source)
+[[ $- != *i* ]] && return
+
+# ble.sh: fish-style autosuggestions and syntax highlighting for bash.
+# Must load first, before anything binds keys. Attached at the very end.
+# Install with: yay -S blesh-git
+[[ -f /usr/share/blesh/ble.sh ]] && source /usr/share/blesh/ble.sh --attach=none
+
+# All the default Omarchy aliases and functions
+# (don't mess with these directly, just overwrite them here!)
+# This already sets up starship, zoxide, fzf, mise and bash completion.
+source "$OMARCHY_PATH/default/bash/rc"
+
+# ghostty terminal integration (cwd for new windows, prompt jumping). Sourced here
+# instead of injected by ghostty, so ble.sh can attach at startup without a doubled prompt.
+[[ -n ${GHOSTTY_RESOURCES_DIR-} ]] && builtin source "$GHOSTTY_RESOURCES_DIR/shell-integration/bash/ghostty.bash"
+
+# uv
+. "$HOME/.local/bin/env"
+
+# fzf: what Ctrl-T / Alt-C search, and how the picker looks
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+
+# History: big, shared between terminals, no duplicates
+HISTSIZE=100000
+HISTFILESIZE=100000
+HISTCONTROL=ignoreboth:erasedups
+shopt -s histappend
+PROMPT_COMMAND="history -a; ${PROMPT_COMMAND:-}"
+
+# atuin: searchable synced history on Ctrl-R (up arrow stays normal)
+eval "$(atuin init bash --disable-up-arrow)"
+
+# ble.sh: attach last, after every prompt/key setup above
+[[ ${BLE_VERSION-} ]] && ble-attach
