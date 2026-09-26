@@ -30,3 +30,16 @@ ble-face command_builtin=fg=green
 
 # The prompt already shows the exit code, so ble.sh does not need to print it.
 bleopt exec_errexit_mark=
+
+# Enter always runs the command, even a pasted multi-line one. By default
+# ble.sh makes Enter add a new line once the buffer has more than one line,
+# and only Ctrl-J runs it. Alt-Enter still adds a line by hand.
+#
+# This has to go in the after-load hook: ble.sh installs its own keymap when
+# it attaches, which is after .blerc is read, so a plain ble-bind here is
+# overwritten.
+blehook/eval-after-load keymap_emacs '
+  ble-bind -f "RET"   accept-line
+  ble-bind -f "C-m"   accept-line
+  ble-bind -f "M-RET" newline
+'

@@ -27,8 +27,9 @@ if command -v eza &>/dev/null; then
   alias llta='eza -lah --icons --git --group-directories-first --sort=newest --reverse'
   alias tree='eza --tree --icons'
 fi
-command -v bat &>/dev/null && alias cat='bat --style=plain --paging=never'
-command -v rg  &>/dev/null && alias grep='rg --color=auto'
+# Not aliased on purpose: `cat` and `grep`. Pointing them at bat and rg breaks
+# scripts, and anything else that expects the real tool's flags. Use `bat` and
+# `rg` by name instead.
 
 # ── update: upgrade the whole system ────────────────────────────────────────
 update() {
@@ -368,7 +369,7 @@ secscan() {
 
 alias glscan='secscan-leaks'
 command -v trufflehog  &>/dev/null && alias th='trufflehog filesystem'
-command -v semgrep     &>/dev/null && alias sg='semgrep --config=auto'
+command -v semgrep     &>/dev/null && alias smg='semgrep --config=auto'  # not `sg`: that is switch-group
 command -v osv-scanner &>/dev/null && alias osv='osv-scanner -r'
 
 command -v tflint   &>/dev/null && alias tfl='tflint'
