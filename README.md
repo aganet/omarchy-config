@@ -126,9 +126,16 @@ anything.
 | `home/bashrc.local.example` | `~/.bashrc.local`, by hand |
 | `config/starship.toml` | `~/.config/starship.toml` |
 | `config/ghostty/config` | `~/.config/ghostty/config` |
-| `docs/terminal-setup.md` | How it all fits together, and how to undo it |
 
-## Changing it
+## Tweaks
+
+- Suggestions too dark or too bright: change `fg=245` in `home/blerc`.
+  232 is dark, 255 is light.
+- No clock: delete the `right_format` line in `config/starship.toml`.
+- No battery: set `disabled = true` under `[battery]`.
+- One line instead of two: take `$character` off its own line in `format`.
+
+## Making changes
 
 The files in my home folder are links into this repo, so editing
 `~/.bashrc` edits the repo:
@@ -140,14 +147,19 @@ git add -A && git commit -m "what changed" && git push
 
 On another machine: `git pull`, then open a new terminal.
 
-## Two things worth knowing
+## Worth knowing
 
 Prompt colours are palette names, not fixed colours. The prompt follows
 whatever Omarchy theme is active.
 
 `shell-integration = none` in the ghostty config is deliberate. `.bashrc`
-loads ghostty's integration itself. Without it the first prompt is drawn
-twice. The full story is in [docs/terminal-setup.md](docs/terminal-setup.md).
+loads ghostty's integration itself. Without it ble.sh attaches too late and
+the first prompt is drawn twice.
+
+Enter is rebound in `home/blerc` so a pasted multi-line command runs. That
+rebind sits in ble.sh's `keymap_emacs` after-load hook, because ble.sh
+installs its own keymap after `.blerc` is read. `Alt-Enter` adds a line by
+hand.
 
 ## Also mine
 
