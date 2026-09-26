@@ -1,7 +1,7 @@
-# omarchy-config
+# omarchy-terminal
 
-My terminal setup for [Omarchy](https://omarchy.org). It is bash, but it
-works like oh-my-zsh with powerlevel10k.
+My terminal setup for [Omarchy](https://omarchy.org): bash with
+suggestions, colours and a prompt that actually tells me something.
 
 ![The prompt](docs/prompt.png)
 
@@ -66,8 +66,8 @@ Omarchy already ships everything except ble.sh.
 On a fresh Omarchy machine:
 
 ```bash
-git clone https://github.com/aganet/omarchy-config.git ~/omarchy-config
-~/omarchy-config/install.sh
+git clone https://github.com/aganet/omarchy-terminal.git ~/omarchy-terminal
+~/omarchy-terminal/install.sh
 yay -S blesh-git
 ```
 
@@ -110,7 +110,7 @@ git config --global merge.conflictstyle "zdiff3"
 For work hostnames or anything I do not want on GitHub:
 
 ```bash
-cp ~/omarchy-config/home/bashrc.local.example ~/.bashrc.local
+cp ~/omarchy-terminal/home/bashrc.local.example ~/.bashrc.local
 ```
 
 That file is not in git. `~/.bashrc` reads it last, so it can override
@@ -141,7 +141,7 @@ The files in my home folder are links into this repo, so editing
 `~/.bashrc` edits the repo:
 
 ```bash
-cd ~/omarchy-config
+cd ~/omarchy-terminal
 git add -A && git commit -m "what changed" && git push
 ```
 
