@@ -10,6 +10,7 @@ My terminal on Omarchy: bash with ble.sh and a starship prompt.
 | --- | --- | --- |
 | `home/bashrc` | `~/.bashrc` | Loads ble.sh, Omarchy's defaults, ghostty integration, fzf, atuin |
 | `home/blerc` | `~/.blerc` | ble.sh: autosuggestions, syntax colours, Tab menu |
+| `home/aliases` | `~/.bash_aliases` | Aliases and functions, ported from my zsh config |
 | `config/starship.toml` | `~/.config/starship.toml` | The prompt |
 | `config/ghostty/config` | `~/.config/ghostty/config` | Terminal: font, keys, shell integration |
 | `home/bashrc.local.example` | `~/.bashrc.local` | Machine-specific bits. Copied by hand, not in git. |

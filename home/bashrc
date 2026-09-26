@@ -37,6 +37,12 @@ PROMPT_COMMAND="history -a; ${PROMPT_COMMAND:-}"
 # atuin: searchable synced history on Ctrl-R (up arrow stays normal)
 eval "$(atuin init bash --disable-up-arrow)"
 
+# My aliases and functions, ported from my zsh config.
+[[ -r ~/.bash_aliases ]] && source ~/.bash_aliases
+
+# direnv: per-directory environment variables from a .envrc file
+command -v direnv &>/dev/null && eval "$(direnv hook bash)"
+
 # Machine-specific settings. Not in git, so work hostnames and the like stay off GitHub.
 [[ -r ~/.bashrc.local ]] && source ~/.bashrc.local
 

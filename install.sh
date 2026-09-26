@@ -24,6 +24,7 @@ link() {
 
 link home/bashrc          "$HOME/.bashrc"
 link home/blerc           "$HOME/.blerc"
+link home/aliases         "$HOME/.bash_aliases"
 link config/starship.toml "$HOME/.config/starship.toml"
 link config/ghostty/config "$HOME/.config/ghostty/config"
 
