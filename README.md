@@ -97,11 +97,22 @@ The bashrc is always installed, because it is the file that loads the
 others. Everything already in place is backed up first, with the date in
 the name, and running it again is safe.
 
-Want to see what it would do without touching your home?
+Not sure? Ask it what it would do:
 
 ```bash
-t=$(mktemp -d); HOME="$t" ./install.sh --all; find "$t"; rm -rf "$t"
+$ ./install.sh --all --dry-run
+
+Dry run. Nothing will be changed.
+Would install: prompt typing aliases terminal
+  would link ~/.bashrc
+  would back up ~/.config/starship.toml -> ~/.config/starship.toml.2026-09-26, then link it
+  would link ~/.blerc
+  ...
+Nothing was changed. Run it without --dry-run to do it for real.
 ```
+
+It tells you exactly which files it would touch and which it would back up
+first. `--dry-run` works with any of the forms above.
 
 ### The aliases come in groups
 

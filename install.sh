@@ -6,6 +6,7 @@
 #   ./install.sh --all           everything, no questions
 #   ./install.sh prompt aliases  just those parts
 #   ./install.sh --list          show the parts and stop
+#   ./install.sh --dry-run ...   say what it would do, change nothing
 #
 # The bashrc is always installed. It is the file that loads the rest.
 
@@ -13,6 +14,14 @@ set -euo pipefail
 
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 stamp=$(date +%F)
+
+# --dry-run anywhere in the arguments: print what would happen, touch nothing.
+dry=no
+args=()
+for a in "$@"; do
+  if [[ $a == --dry-run || $a == -n ]]; then dry=yes; else args+=("$a"); fi
+done
+set -- ${args[@]+"${args[@]}"}
 
 # name|source in repo|destination under ~|what it is
 parts=(
@@ -25,7 +34,7 @@ parts=(
 field() { printf '%s' "$1" | cut -d'|' -f"$2"; }
 
 usage() {
-  echo "usage: install.sh [--all | --list | <part>...]"
+  echo "usage: install.sh [--all | --list | --dry-run | <part>...]"
   echo
   echo "parts:"
   local p
@@ -38,6 +47,17 @@ usage() {
 
 link() {
   local src="$repo/$1" dst="$HOME/$2"
+
+  if [[ $dry == yes ]]; then
+    if [[ -L $dst ]]; then
+      echo "  would replace the link ~/$2"
+    elif [[ -e $dst ]]; then
+      echo "  would back up ~/$2 -> ~/$2.$stamp, then link it"
+    else
+      echo "  would link ~/$2"
+    fi
+    return
+  fi
 
   if [[ -L $dst ]]; then
     rm "$dst"
@@ -103,7 +123,12 @@ fi
 
 # ── install ─────────────────────────────────────────────────────────────────
 echo
-echo "Installing: ${chosen[*]}"
+if [[ $dry == yes ]]; then
+  echo "Dry run. Nothing will be changed."
+  echo "Would install: ${chosen[*]}"
+else
+  echo "Installing: ${chosen[*]}"
+fi
 link home/bashrc .bashrc
 
 for want in "${chosen[@]}"; do
@@ -127,4 +152,8 @@ if [[ " ${chosen[*]} " == *" aliases "* ]]; then
   echo
 fi
 
-echo "Open a new terminal to pick everything up."
+if [[ $dry == yes ]]; then
+  echo "Nothing was changed. Run it without --dry-run to do it for real."
+else
+  echo "Open a new terminal to pick everything up."
+fi
