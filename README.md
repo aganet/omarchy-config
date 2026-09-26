@@ -68,7 +68,7 @@ On a fresh Omarchy machine:
 ```bash
 git clone https://github.com/aganet/omarchy-terminal.git ~/omarchy-terminal
 ~/omarchy-terminal/install.sh
-yay -S blesh-git
+yay -S --needed blesh-git
 ```
 
 Open a new terminal. Done.
@@ -87,7 +87,7 @@ sudo pacman -S --needed git-delta kubectl kubectx helm k9s stern kind \
   dive tflint osv-scanner popeye crane
 
 # from the AUR
-yay -S trufflehog grype kube-score kubescape hadolint conftest
+yay -S --needed trufflehog grype kube-score kubescape hadolint conftest
 
 # python tools
 uv tool install checkov

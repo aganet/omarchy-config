@@ -29,5 +29,11 @@ link config/starship.toml "$HOME/.config/starship.toml"
 link config/ghostty/config "$HOME/.config/ghostty/config"
 
 echo
-echo "Install ble.sh, then open a new terminal:"
-echo "  yay -S blesh-git"
+if [[ -f /usr/share/blesh/ble.sh ]]; then
+  echo "ble.sh is already installed."
+else
+  echo "ble.sh is missing. Install it with:"
+  echo "  yay -S --needed blesh-git"
+fi
+echo
+echo "Open a new terminal to pick everything up."
