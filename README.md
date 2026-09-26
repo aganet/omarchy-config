@@ -12,17 +12,39 @@ My terminal on Omarchy: bash with ble.sh and a starship prompt.
 | `home/blerc` | `~/.blerc` | ble.sh: autosuggestions, syntax colours, Tab menu |
 | `config/starship.toml` | `~/.config/starship.toml` | The prompt |
 | `config/ghostty/config` | `~/.config/ghostty/config` | Terminal: font, keys, shell integration |
+| `home/bashrc.local.example` | `~/.bashrc.local` | Machine-specific bits. Copied by hand, not in git. |
 | `docs/terminal-setup.md` | — | How it all fits together, and how to undo it |
 
-## Install
+## New machine
+
+On a fresh Omarchy install:
 
 ```bash
 git clone https://github.com/aganet/omarchy-config.git ~/omarchy-config
-~/omarchy-config/install.sh
-yay -S blesh-git
+~/omarchy-config/install.sh      # links the files, backs up what is there
+yay -S blesh-git                 # the only thing Omarchy does not ship
 ```
 
-Open a new terminal. The script backs up anything already in place.
+Open a new terminal. That is all.
+
+For anything machine-specific (work hostnames, private aliases):
+
+```bash
+cp ~/omarchy-config/home/bashrc.local.example ~/.bashrc.local
+```
+
+`~/.bashrc.local` is not in git. `~/.bashrc` sources it last.
+
+## Keeping it up to date
+
+The files in `~` are symlinks into `~/omarchy-config`, so editing
+`~/.bashrc` edits the repo. To publish a change:
+
+```bash
+cd ~/omarchy-config && git add -A && git commit -m "..." && git push
+```
+
+On another machine: `git pull`, then open a new terminal.
 
 ## Needs
 

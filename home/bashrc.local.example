@@ -1,0 +1,9 @@
+# Machine-specific settings. Copy to ~/.bashrc.local and edit.
+#
+#   cp ~/omarchy-config/home/bashrc.local.example ~/.bashrc.local
+#
+# ~/.bashrc sources this file last, so anything here overrides the defaults.
+# It is not in git, so put work hostnames, tokens and private aliases here.
+
+# alias sshbox='ssh user@10.0.0.10'
+# export SOME_WORK_VAR=...

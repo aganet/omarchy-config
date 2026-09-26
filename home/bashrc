@@ -37,5 +37,8 @@ PROMPT_COMMAND="history -a; ${PROMPT_COMMAND:-}"
 # atuin: searchable synced history on Ctrl-R (up arrow stays normal)
 eval "$(atuin init bash --disable-up-arrow)"
 
+# Machine-specific settings. Not in git, so work hostnames and the like stay off GitHub.
+[[ -r ~/.bashrc.local ]] && source ~/.bashrc.local
+
 # ble.sh: attach last, after every prompt/key setup above
 [[ ${BLE_VERSION-} ]] && ble-attach
